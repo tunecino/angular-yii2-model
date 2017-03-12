@@ -1,0 +1,35 @@
+{
+  "name": "angular-yii2-model",
+  "version": "0.1.0",
+  "description": "Yii2 RESTful API mapper for AngularJS 1.x",
+  "main": "src/angular-yii2-model.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tunecino/angular-yii2-model.git"
+  },
+  "author": "Salem Ouerdani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tunecino/angular-yii2-model/issues"
+  },
+  "keywords": [
+    "angular",
+    "yii2",
+    "rest"
+  ],
+  "homepage": "https://github.com/tunecino/angular-yii2-model",
+  "devDependencies": {
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.5.4",
+    "uglifyjs": "^2.4.10"
+  },
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "prebuild": "npm run clean -s && mkdirp dist",
+    "build": "npm run build:minify -s && npm run build:copy -s",
+    "build:minify": "uglifyjs src/angular-yii2-model.js -o dist/angular-yii2-model.min.js -c",
+    "build:copy": "cat src/angular-yii2-model.js > dist/angular-yii2-model.js",
+    "version": "npm run build && git add -A dist",
+    "postversion": "git push && git push --tags"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "author": "Salem Ouerdani",
+  "name": "angular-yii2-model",
+  "homepage": "https://github.com/tunecino/angular-yii2-model",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tunecino/angular-yii2-model.git"
+  },
+  "main": "./src/angular-yii2-model.js",
+  "dependencies": {
+    "angular": "^1.2"
+  },
+  "ignore": [
+    "package.json"
+  ],
+  "license": "MIT"
+}
