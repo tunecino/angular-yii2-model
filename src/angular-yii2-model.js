@@ -39,34 +39,34 @@
             _fields,
             _headers;
 
-        Object.defineProperty(this, 'route', {
+        Object.defineProperty(this, '$route', {
             get: function() { return _route },
         });
-        Object.defineProperty(this, 'expand', {
+        Object.defineProperty(this, '$expand', {
             get: function() { return _expand },
             set: function(value) { _expand = _isArray(value) ? value.join() : value }
         });
-        Object.defineProperty(this, 'fields', {
+        Object.defineProperty(this, '$fields', {
             get: function() { return _fields },
             set: function(value) { _fields = _isArray(value) ? value.join() : value }
         });
-        Object.defineProperty(this, 'baseUrl', {
-            get: function() { return config.baseUrl + '/' + this.route },
+        Object.defineProperty(this, '$baseUrl', {
+            get: function() { return config.baseUrl + '/' + this.$route },
         });
-        Object.defineProperty(this, 'headers', {
+        Object.defineProperty(this, '$headers', {
             get: function() { return _headers },
             set: function(obj) {
               if (_isPlainObject(obj) === false)
-                throw new Error("input should be contained in an object");
+                throw new Error("input should be contained inside an object");
               _headers = obj;
             }
         });
     };
 
     BaseModel.prototype = {
-        select: function(fields) { this.fields = fields },
-        with: function(resource) { this.expand = resource },
-        setHeaders: function(config) { this.headers = config },
+        $select: function(fields) { this.$fields = fields },
+        $with: function(resource) { this.$expand = resource },
+        $setHeaders: function(config) { this.$headers = config },
     };
 
 
@@ -76,23 +76,23 @@
     function Collection(route) {
         BaseModel.call(this, route);
 
-        this.data = [];
-        this.meta = {};
+        this.$data = [];
+        this.$meta = {};
 
         var _perPage = 20,
             _page = 1,
             _links = {},
             _filters = {};
 
-        Object.defineProperty(this, 'perPage', {
+        Object.defineProperty(this, '$perPage', {
             get: function() { return _perPage },
             set: function(value) { _perPage = value }
         });
-        Object.defineProperty(this, 'page', {
+        Object.defineProperty(this, '$page', {
             get: function() { return _page },
             set: function(value) { _page = value }
         });
-        Object.defineProperty(this, 'links', {
+        Object.defineProperty(this, '$links', {
             get: function() { return _links },
             set: function(obj) {
               if (_isPlainObject(obj) === false || typeof obj.self === "undefined")
@@ -100,7 +100,7 @@
               _links = obj;
             }
         });
-        Object.defineProperty(this, 'filters', {
+        Object.defineProperty(this, '$filters', {
             get: function() { return _filters },
             set: function(obj) {
               if (_isPlainObject(obj) === false)
@@ -108,14 +108,14 @@
               _filters = obj;
             }
         });
-        Object.defineProperty(this, 'params', {
+        Object.defineProperty(this, '$params', {
             get: function() { 
               return angular.extend({
-              'per-page': this.perPage,
-              'page': this.page,
-              'expand': this.expand,
-              'fields': this.fields,
-            }, this.filters); 
+              'per-page': this.$perPage,
+              'page': this.$page,
+              'expand': this.$expand,
+              'fields': this.$fields,
+            }, this.$filters); 
           },
         });
     };
@@ -123,55 +123,52 @@
     Collection.prototype = Object.create( BaseModel.prototype );
     Collection.prototype.constructor = Collection;
     angular.extend( Collection.prototype , {
-      load: function(perPage) {
+      $load: function(perPage) {
             var $this = this;
-            if (perPage) this.perPage = perPage;
+            if (perPage) this.$perPage = perPage;
             return $http({
-                url: this.baseUrl,
+                url: this.$baseUrl,
                 method: "GET",
-                params: this.params,
-                headers: this.headers
+                params: this.$params,
+                headers: this.$headers
             })
             .then(function successCallback(response) {
                 _responseParser.call($this, response);
                 return $this;
-            },
-            function errorCallback(error) {
-                console.log("Resource couldn't be loaded", error);
             });
         },
         // meta methods
-        isFirst:   function() { return this.meta.$currentPage === 1 },
-        isLast:    function() { return this.meta.$currentPage === this.meta.$pageCount },
-        existNext: function() { return typeof this.links.next !== "undefined" },
-        existPrev: function() { return typeof this.links.prev !== "undefined" },
+        $isFirst:   function() { return this.$meta.currentPage === 1 },
+        $isLast:    function() { return this.$meta.currentPage === this.$meta.pageCount },
+        $existNext: function() { return typeof this.$links.next !== "undefined" },
+        $existPrev: function() { return typeof this.$links.prev !== "undefined" },
         // pagination methods
-        firstPage: function() {
-            if (this.isFirst() === true) return;
-            return _getByUrl.call(this, this.links.first);
+        $firstPage: function() {
+            if (this.$isFirst() === true) return;
+            return _getByUrl.call(this, this.$links.first);
         },
-        nextPage: function() {
-            if (this.existNext() === false) return;
-            return _getByUrl.call(this, this.links.next);
+        $nextPage: function() {
+            if (this.$existNext() === false) return;
+            return _getByUrl.call(this, this.$links.next);
         },
-        prevPage: function() {
-            if (this.existPrev() === false) return;
-            return _getByUrl.call(this, this.links.prev);
+        $prevPage: function() {
+            if (this.$existPrev() === false) return;
+            return _getByUrl.call(this, this.$links.prev);
         },
-        lastPage: function() {
-            if (this.isLast() === true) return;
-            return _getByUrl.call(this, this.links.last);
+        $lastPage: function() {
+            if (this.$isLast() === true) return;
+            return _getByUrl.call(this, this.$links.last);
         },
-        Page: function(pageNumber) {
-            if (pageNumber === this.meta.$currentPage || pageNumber > this.meta.$totalCount) return;
-            this.page = pageNumber;
-            return this.load();
+        $getPage: function(pageNumber) {
+            if (pageNumber === this.$meta.currentPage || pageNumber > this.$meta.totalCount) return;
+            this.$page = pageNumber;
+            return this.$load();
         },
-        Refresh: function() { return _getByUrl.call(this, this.links.self) },
+        $refresh: function() { return _getByUrl.call(this, this.$links.self) },
         // filtering
-        where: function(params) {
-            this.filters = params;
-            return this.load();
+        $where: function(params) {
+            this.$filters = params;
+            return this.$load();
         },
     });
 
@@ -186,15 +183,15 @@
         var _fromServer = false;
         var _errors = {};
 
-        Object.defineProperty(this, 'primaryKey', {
+        Object.defineProperty(this, '$primaryKey', {
             get: function() { return _primaryKey },
             set: function(value) { _primaryKey = value }
         });
-        Object.defineProperty(this, 'fromServer', {
+        Object.defineProperty(this, '$fromServer', {
             get: function() { return _fromServer },
             set: function(value) { _fromServer = value }
         });
-        Object.defineProperty(this, 'errors', {
+        Object.defineProperty(this, '$errors', {
             get: function() { return _errors },
             set: function(value) { _errors = value }
         });
@@ -203,111 +200,102 @@
     Resource.prototype = Object.create( BaseModel.prototype );
     Resource.prototype.constructor = Resource;
     angular.extend( Resource.prototype , {
-      setData: function(item) {
+      $setData: function(item) {
           angular.extend(this, item);
       },
-      find: function(id) {
+      $find: function(id) {
           if (typeof id === "undefined") throw new Error("item id is required");
           var $this = this;
           return $http({
-              url: this.baseUrl + '/' + id,
+              url: this.$baseUrl + '/' + id,
               method: "GET",
-              params: { expand: this.expand, fields: this.fields },
-              headers: this.headers
+              params: { expand: this.$expand, fields: this.$fields },
+              headers: this.$headers
           })
           .then(function successCallback(response) {
-              $this.setData(response.data);
-              $this.fromServer = true;
+              $this.$setData(response.data);
+              $this.$fromServer = true;
               return $this;
-          },
-          function errorCallback(error) {
-              console.log('error',error)
           });
       },
 
-      getPrimaryKey: function() { return this[this.primaryKey] },
-      isNew: function() { return this.fromServer === false || typeof this.getPrimaryKey() === "undefined" },
-      clearErrors: function() {
-        if (Object.keys(this.errors).length === 0 && this.errors.constructor === Object) return;
-        this.errors = {};
-        delete this.$errors;
+      $getPrimaryKey: function() { return this[this.$primaryKey] },
+      $isNew: function() { return this.$fromServer === false || typeof this.$getPrimaryKey() === "undefined" },
+      $hasErrors: function() {
+        if (this.$errors.constructor !== Object) throw new Error("$errors is expected to be an object");
+        return Object.keys(this.$errors).length !== 0;
       },
-
-      update: function() {
-          if (this.isNew()) throw new Error("item should be first saved");
-          this.clearErrors();
+      $clearErrors: function() {
+        if (this.$hasErrors() === true) this.$errors = {};
+      },
+      $update: function() {
+          if (this.$isNew()) throw new Error("item should be first saved");
+          this.$clearErrors();
           var $this = this;
           return $http({
-              url: this.baseUrl + '/' + this.getPrimaryKey(),
+              url: this.$baseUrl + '/' + this.$getPrimaryKey(),
               method: "PUT",
-              params: { expand: this.expand, fields: this.fields },
-              headers: this.headers,
+              params: { expand: this.$expand, fields: this.$fields },
+              headers: this.$headers,
               data: this
           })
           .then(function successCallback(response) {
-              $this.setData(response.data);
+              $this.$setData(response.data);
               return $this;
           },
           function errorCallback(error) {
               if (error.status === 422) {
-                _each(error.data, function(e, key) {
+                _each(error.data, function(e) {
                   var errObj = { 
                     message: e.message,
                     pattern: '(?!^'+ _preg_quote($this[e.field]) +'$)(^.*$)'
                   };
-                  $this.errors[e.field] = errObj;
+                  $this.$errors[e.field] = errObj;
                 });
-                $this.setData({$errors: $this.errors});
               }
           });
       },
 
-      create: function() {
-          this.clearErrors();
+      $create: function() {
+          this.$clearErrors();
           var $this = this;
           return $http({
-              url: this.baseUrl,
+              url: this.$baseUrl,
               method: "POST",
-              params: { expand: this.expand, fields: this.fields },
-              headers: this.headers,
+              params: { expand: this.$expand, fields: this.$fields },
+              headers: this.$headers,
               data: this
           })
           .then(function successCallback(response) {
-              $this.setData(response.data);
-              $this.fromServer = true;
+              $this.$setData(response.data);
+              $this.$fromServer = true;
               return $this;
           },
           function errorCallback(error) {
               if (error.status === 422) {
-                _each(error.data, function(e, key) {
+                _each(error.data, function(e) {
                   var errObj = { 
                     message: e.message,
                     pattern: '(?!^'+ _preg_quote($this[e.field]) +'$)(^.*$)'
                   };
-                  $this.errors[e.field] = errObj;
+                  $this.$errors[e.field] = errObj;
                 });
-                $this.setData({$errors: $this.errors});
               }
-              else console.log('error',error);
           });
       },
 
-      save: function() { this.isNew() ? this.create() : this.update() },
-      delete: function() {
-          if (this.isNew()) throw new Error("item is not yet saved");
+      $save: function() { this.$isNew() ? this.$create() : this.$update() },
+      $delete: function() {
+          if (this.$isNew()) throw new Error("item is not yet saved");
           var $this = this;
           return $http({
-              url: this.baseUrl + '/' + this.getPrimaryKey(),
+              url: this.$baseUrl + '/' + this.$getPrimaryKey(),
               method: "DELETE",
-              headers: this.headers
+              headers: this.$headers
           })
-          .then(function successCallback(response) {
-              $this.fromServer = false;
-              console.log('successfully deleted', response);
+          .then(function successCallback() {
+              $this.$fromServer = false;
               return $this;
-          },
-          function errorCallback(error) {
-              console.log('error',error)
           });
       },
     });
@@ -383,47 +371,44 @@
 
     var _getByUrl = function(url) {
         var $this = this;
-        return $http.get(url, { headers: this.headers })
+        return $http.get(url, { headers: this.$headers })
         .then(function successCallback(response) {
             _responseParser.call($this, response);
             return $this;
-        },
-        function errorCallback(error) {
-            console.log("Resource couldn't be loaded", error);
         });
     }
 
 
     var _responseParser = function(response) {
-        this.data = response.data;
+        this.$data = response.data;
 
-        this.meta.$currentPage = +response.headers(config.currentPageHeader);
-        this.meta.$pageCount   = +response.headers(config.pageCountHeader);
-        this.meta.$perPage     = +response.headers(config.perPageHeader);
-        this.meta.$totalCount  = +response.headers(config.totalCountHeader);
+        this.$meta.currentPage = +response.headers(config.currentPageHeader);
+        this.$meta.pageCount   = +response.headers(config.pageCountHeader);
+        this.$meta.perPage     = +response.headers(config.perPageHeader);
+        this.$meta.totalCount  = +response.headers(config.totalCountHeader);
 
         var headerLink = response.headers('Link');
 
         if (headerLink === null || headerLink.length === 0) 
           throw new Error("Enable to parse headers. Be sure 'baseUrl' to Yii server is correct and the 'Link' header is exposed to the browser as shown in this extension's README.md file.");
 
-        this.links = _parse_link_header(headerLink);
+        this.$links = _parse_link_header(headerLink);
 
         // update local params
-        if (this.links.self) {
-          var params = _parse_url_params(this.links.self);
-          if (params.perPage) this.perPage = +params.perPage;
-          if (params.page)    this.page    = +params.page;
-          if (params.expand)  this.expand  = params.expand;
-          if (params.fields)  this.fields  = params.fields;
+        if (this.$links.self) {
+          var params = _parse_url_params(this.$links.self);
+          if (params.perPage) this.$perPage = +params.perPage;
+          if (params.page)    this.$page    = +params.page;
+          if (params.expand)  this.$expand  = params.expand;
+          if (params.fields)  this.$fields  = params.fields;
         }
     }
 
 
 
     this.$get = provider;
-    provider.$inject = ['$http', '$q'];
-    function provider(_$http_, $q) {
+    provider.$inject = ['$http'];
+    function provider(_$http_) {
       config = this;
       // http://stackoverflow.com/questions/19171207/injecting-dependencies-into-provider#answer-34657324
       $http = _$http_;
