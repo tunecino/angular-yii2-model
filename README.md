@@ -1,8 +1,6 @@
 
 # angular-yii2-model
 
-[![npm version](https://badge.fury.io/js/angular-yii2-model.svg)](https://badge.fury.io/js/angular-yii2-model)
-
 
 A lightweight AngularJS 1.x service designed to consume the [Yii2 RESTful API framework](http://www.yiiframework.com/doc-2.0/guide-rest-quick-start.html) and its built-in [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS).
 
@@ -38,37 +36,37 @@ class UserController extends \yii\rest\ActiveController
     public $modelClass = 'app\models\User';
 
     public function behaviors()
-	{
-	    $behaviors = parent::behaviors();
-	    unset($behaviors['authenticator']);
+    {
+       $behaviors = parent::behaviors();
+       unset($behaviors['authenticator']);
 	    
-	    // CORS filter
-	    $behaviors['corsFilter'] = [
-	        'class' => \yii\filters\Cors::className(),
-	        'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Allow-Credentials' => true,
-                'Access-Control-Expose-Headers' => [
-                    // Calulated hyperlinks
-                    'Link',
-                    // Pagination
-                    'X-Pagination-Current-Page',
-                    'X-Pagination-Page-Count',
-                    'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
-                ],
-            ],
-	    ];
+       // CORS filter
+       $behaviors['corsFilter'] = [
+         'class' => \yii\filters\Cors::className(),
+         'cors' => [
+             'Origin' => ['*'],
+             'Access-Control-Request-Method' => ['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'],
+             'Access-Control-Allow-Credentials' => true,
+             'Access-Control-Expose-Headers' => [
+                 // Calulated hyperlinks
+                'Link',
+                 // Pagination
+                 'X-Pagination-Current-Page',
+                 'X-Pagination-Page-Count',
+                 'X-Pagination-Per-Page',
+                 'X-Pagination-Total-Count'
+             ],
+          ],
+	];
 	    
-	    // Authentication filter
-	    $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
-            'except' => ['options'],
+	// Authentication filter
+	$behaviors['authenticator'] = [
+          'class' => \yii\filters\auth\HttpBearerAuth::className(),
+          'except' => ['options'],
         ],
         
-	    return $behaviors;
-	}
+	return $behaviors;
+   }
 }
 ```
 
@@ -84,6 +82,8 @@ This is an example using the resolve method of the [angular-ui-router](https://u
     controller: 'FormCtrl',
     templateUrl: 'form.html',
     resolve: {
+    
+    
       allUsers: function(YiiModel) {
         /*
          * Load a collection of 10 users. we need their 'id' and 'username' fields only.
@@ -93,6 +93,8 @@ This is an example using the resolve method of the [angular-ui-router](https://u
         users.$select(['id','username']); // accepts a string or an array of strings. optional and can be used with both resources and collections.
         return users.$load(10); // returns a promise. required to emit the request that gets the collection.
       },
+      
+      
       UserNumberOne: function(YiiModel) {
         /*
          * Load the user resource whose ID is 1. we also need to load his 'profile'.
@@ -102,12 +104,16 @@ This is an example using the resolve method of the [angular-ui-router](https://u
         user.$with('profile'); // accepts a string or an array of strings. optional and can be used with both resources and collections.
         return user.$find(1); // returns a promise. required to emit the request that gets the resource.
       },
+      
+      
       newUser: function(YiiModel) {
         /*
          * Just an empty instance of user so we can POST it later to server.
         **/
         return YiiModel.one('users');
       },
+      
+      
     }
 });
 ```
@@ -115,7 +121,7 @@ This is an example using the resolve method of the [angular-ui-router](https://u
 Then, they should be passed to some controller where they could be used or injected to some view's scope: 
 
 ```javascript
-angular.module('your-app').controller('FormCtrl', function($scope, allUsers, UserNumberOne, newUser) {
+angular.module('your-app').controller('FormCtrl',function($scope,allUsers,UserNumberOne,newUser){
   var $ = this;
   $.allUsers = allUsers;
   $.userNumberOne = UserNumberOne;
@@ -175,7 +181,7 @@ $.allUsers.$existPrev()
 // GET /users?fields=id,username&page=1&per-page=10&name=lukaku&club=everton
 $.allUsers.$where({name: 'lukaku', club: 'everton'})
 
-// outputs what parsed from the headers meta tags. For more details see: http://www.yiiframework.com/doc-2.0/guide-rest-resources.html#collections
+// outputs what parsed from the headers meta tags. 
 $.allUsers.$meta.currentPage //X-Pagination-Current-Page
 $.allUsers.$meta.pageCount //X-Pagination-Page-Count
 $.allUsers.$meta.perPage //X-Pagination-Per-Page
@@ -205,7 +211,8 @@ $.userNumberOne.$update();
 $.newUser.name = 'xyz';
 $.newUser.$create();
 
-// either updates or creates depending on model being or not a new record. same as: $.newUser.$isNew() ? $.newUser.$create() : $.newUser.$update();
+// either updates or creates depending on model being or not a new record. 
+// same as: $.newUser.$isNew() ? $.newUser.$create() : $.newUser.$update();
 $.newUser.$save();
 ```
 
@@ -218,10 +225,10 @@ There is always validation cases that client cannot handle like checking if an i
 
 ```javascript
 {
-	"username": {
-		"message": "Username \"lukaku\" has already been taken.",
-		"pattern": "(?!^lukaku$)(^.*$)"
-	}
+   "username": {
+	"message": "Username \"lukaku\" has already been taken.",
+	"pattern": "(?!^lukaku$)(^.*$)"
+   }
 }
 ```
 
@@ -256,7 +263,10 @@ Client in this case doesn't even need to understand why server has rejected that
 ```
 Also note that you can always check if a model instance is holding any error received from server by calling `$.newUser.$hasErrors()` which returns a boolean value. those could also be cleared by calling `$.newUser.$clearErrors()`.
 
-##Authentication and custom Headers
+
+
+
+## Authentication and custom Headers
 This extension has a `$setHeaders()` method which you can use to define a custom set of headers within a java-script object to be sent with all requests of a specific model like the one required for Authentication:
 
 
@@ -293,7 +303,7 @@ class UserSearch extends \app\models\User
             'query' => $query,
         ]);
 
-        $this->load($params, $formName); // remember that you can pass `formName` directly to the `load()` method
+        $this->load($params, $formName);
 
         if (!$this->validate()) {
             $query->where('0=1');
