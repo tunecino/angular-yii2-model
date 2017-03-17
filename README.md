@@ -42,22 +42,22 @@ class UserController extends \yii\rest\ActiveController
 	    
        // CORS filter
        $behaviors['corsFilter'] = [
-         'class' => \yii\filters\Cors::className(),
-         'cors' => [
-             'Origin' => ['*'],
-             'Access-Control-Request-Method' => ['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'],
-             'Access-Control-Allow-Credentials' => true,
-             'Access-Control-Expose-Headers' => [
-                 // Calulated hyperlinks
-                'Link',
-                 // Pagination
-                 'X-Pagination-Current-Page',
-                 'X-Pagination-Page-Count',
-                 'X-Pagination-Per-Page',
-                 'X-Pagination-Total-Count'
-             ],
-          ],
-	];
+        'class' => \yii\filters\Cors::className(),
+        'cors' => [
+           'Origin' => ['*'],
+           'Access-Control-Request-Method'=>['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS'],
+           'Access-Control-Allow-Credentials' => true,
+           'Access-Control-Expose-Headers' => [
+               // Calulated hyperlinks
+              'Link',
+               // Pagination
+               'X-Pagination-Current-Page',
+               'X-Pagination-Page-Count',
+               'X-Pagination-Per-Page',
+               'X-Pagination-Total-Count'
+           ],
+         ],
+       ];
 	    
 	// Authentication filter
 	$behaviors['authenticator'] = [
