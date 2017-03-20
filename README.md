@@ -2,8 +2,7 @@
 # angular-yii2-model
 
 
-A lightweight AngularJS 1.x service designed to consume the [Yii2 RESTful API framework](http://www.yiiframework.com/doc-2.0/guide-rest-quick-start.html) and its built-in [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS).
-
+A simple and lightweight AngularJS 1.x service designed to consume [Yii2 RESTful API framework](http://www.yiiframework.com/doc-2.0/guide-rest-quick-start.html) and its built-in [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS).
 
 
 
@@ -13,13 +12,15 @@ A lightweight AngularJS 1.x service designed to consume the [Yii2 RESTful API fr
 - or via npm: `npm install --save angular-yii2-model`
 -  or by manually [downloading the zip file](https://github.com/tunecino/angular-yii2-model/archive/master.zip) and including either `dist/angular-yii2-model.js` or `dist/angular-yii2-model.min.js` to your HTML script tags.
 
+
+
 ## Configurations
 #### Client:
 ```javascript
 // Add it as a dependency to your app
 angular.module('your-app', ['angular-yii2-model']);
 
-// Configure the provider to define the `baseUrl` to your Yii2 RESTful API 
+// Configure its provider to define the base url to your Yii2 RESTful API 
 angular.module('your-app').config(['YiiModelProvider', function(YiiModelProvider) {
 	YiiModelProvider.baseUrl = 'http://localhost/server/api';
 }]);
@@ -74,7 +75,7 @@ class UserController extends \yii\rest\ActiveController
 
 
 ## Usage
-This is an example using the resolve method of the [angular-ui-router](https://ui-router.github.io/ng1/) library to load a *collection*, a *resource* and an *empty instance* to use with new creations:
+This is an example using the resolve method of [angular-ui-router](https://ui-router.github.io/ng1/) library to load a **collection**, a **resource** and an **empty instance** to use with new creations:
 ```javascript
 .state('form', {
     url: '/form',
@@ -128,7 +129,7 @@ angular.module('your-app').controller('FormCtrl',function($scope,allUsers,UserNu
   $.newUser = newUser;
 });
 ```
-Alternatively; if not using ui-router; both `$load()` and `$find()` methods are returning a `$http` promise and could be used as follow: 
+Alternatively; if not using ui-router; both `$load()` and `$find()` methods should return a `$http` promise and could be used as follow: 
 
 ```javascript
 angular.module('your-app').controller('FormCtrl', function($scope, YiiModel) {
@@ -137,7 +138,7 @@ angular.module('your-app').controller('FormCtrl', function($scope, YiiModel) {
    var users = YiiModel.one('users');
    users.$select(['id','username']);
    users.$load(10).then(function(data){
-   	   $.allUsers = data;
+      $.allUsers = data;
    });
 
 });
@@ -182,36 +183,36 @@ $.allUsers.$existPrev()
 $.allUsers.$where({name: 'lukaku', club: 'everton'})
 
 // outputs what parsed from the headers meta tags. 
-$.allUsers.$meta.currentPage //X-Pagination-Current-Page
-$.allUsers.$meta.pageCount //X-Pagination-Page-Count
-$.allUsers.$meta.perPage //X-Pagination-Per-Page
-$.allUsers.$meta.totalCount //X-Pagination-Total-Count
+$.allUsers.$meta.currentPage // X-Pagination-Current-Page
+$.allUsers.$meta.pageCount // X-Pagination-Page-Count
+$.allUsers.$meta.perPage // X-Pagination-Per-Page
+$.allUsers.$meta.totalCount // X-Pagination-Total-Count
 ```
 
 ### Playing with resources:
 ```javascript
-// changes the default primary Key attribute. default to 'id'.
+// change default primary Key attribute. default to 'id'.
 $.userNumberOne.$primaryKey = 'user_id';
 
 // returns the primary Key value.
 $.userNumberOne.$getPrimaryKey() // outputs 1
 
-// returns a boolean. either it is or not a new record and not loaded from server.
+// returns a boolean. Either it is a new record or has been loaded from server.
 $.userNumberOne.$isNew() // returns false
 $.newUser.$isNew() // returns true
 
-// makes a delete request: DELETE /users/1
+// make a delete request: DELETE /users/1
 $.userNumberOne.$delete()
 
-// makes a PUT request after changing an attribute value: PUT /users/1 {name: 'abc', ...}
+// make a PUT request after changing an attribute value: PUT /users/1 {name: 'abc', ...}
 $.userNumberOne.name = 'abc';
 $.userNumberOne.$update();
 
-// makes a POST request to create a new record: POST /users {name: 'xyz', ...}
+// make a POST request to create a new record: POST /users {name: 'xyz'}
 $.newUser.name = 'xyz';
 $.newUser.$create();
 
-// either updates or creates depending on model being or not a new record. 
+// either update or create depending on model being or not a new record. 
 // same as: $.newUser.$isNew() ? $.newUser.$create() : $.newUser.$update();
 $.newUser.$save();
 ```
@@ -221,7 +222,7 @@ $.newUser.$save();
 
 ## Handling server-side validation
 
-There is always validation cases that client cannot handle like checking if an input value is unique in a database. Of course those could only be handled by the server. And in case of Yii framework rejecting an input by throwing a data validation fail error *(422)* . This extension will add an `$errors` attribute to your model where you'll find the **field name** being rejected, the **error message** as received from the server and a **pattern regex** generated by this extension so you can use it to prevent client from re-sending the same input:
+There is always validation cases that client cannot handle like checking if an input value is unique in a database. Of course those could only be handled by server. When Yii rejects an input by throwing a validation fail error *(422)*, this extension will add an `$errors` attribute to your model where you'll find the **field name** being rejected, the **error message** as received from the server and a **pattern regex** generated by this extension so you can use it to prevent client from re-sending the same input:
 
 ```javascript
 {
@@ -232,7 +233,7 @@ There is always validation cases that client cannot handle like checking if an i
 }
 ```
 
-Client in this case doesn't even need to understand why server has rejected that input as we can simply use angular's `ng-pattern` attribute to make it know that whatever input it was, user shouldn't send it again as server won't approve it. Here is a HTML form validation example using angular built-in services while showing any extra error message received from the server and feeding the `ng-pattern` attribute with our pattern regex to prevent re-sending it again:
+Client in this case doesn't need to understand why server has rejected that input as we can simply use angular's `ng-pattern` attribute to make it know that whatever input it was, user shouldn't send it again as server won't approve it. Here is a HTML form validation example using angular built-in services while showing any extra error message received from the server and feeding the `ng-pattern` attribute with our pattern regex to prevent re-sending it again:
 
 
 ```html
@@ -253,21 +254,22 @@ Client in this case doesn't even need to understand why server has rejected that
         <p class="error-msg" ng-show="form.username.$dirty && form.username.$error.required">Username is required</p>
         <p class="error-msg" ng-show="form.username.$dirty && form.username.$error.minlength">too short</p>
         <p class="error-msg" ng-show="form.username.$dirty && form.username.$error.maxlength">too long</p>
+        <!-- SERVER ERROR MSG -->
         <p class="error-msg" ng-show="$.newUser.$errors.username && form.username.$error.pattern"> {{$.newUser.$errors.username.message}} </p>
     </div>
     
     <!-- SUBMIT BUTTON -->
-    <button type="submit">Submit</button>
+    <button type="submit" ng-disabled="form.$invalid">Submit</button>
     
 </form>
 ```
-Also note that you can always check if a model instance is holding any error received from server by calling `$.newUser.$hasErrors()` which returns a boolean value. those could also be cleared by calling `$.newUser.$clearErrors()`.
+Note that you can always check if a model instance is holding any error received from server by calling `$.newUser.$hasErrors()` which returns a boolean value. Those could also be cleared by calling `$.newUser.$clearErrors()`.
 
 
 
 
 ## Authentication and custom Headers
-This extension has a `$setHeaders()` method which you can use to define a custom set of headers within a java-script object to be sent with all requests of a specific model like the one required for Authentication:
+This extension has a `$setHeaders()` method which you can use to define a custom set of headers within a java-script object to be sent with any request of a specific model like the one required for Authentication:
 
 
 ```javascript
@@ -279,13 +281,13 @@ resolve: {
   }
 }
 ```
-However nothing is provided by this extension to hold default or global headers for all requests as it is already built on top of angular's [http](https://docs.angularjs.org/api/ng/service/$http) core service which already supports such configurations like setting its `$http.defaults.headers` property in a run block or using interceptors. more about it [here](http://stackoverflow.com/questions/27134840/setting-angularjs-http-headers-globally). 
+However nothing is provided by this extension to hold default or global headers for all requests as it is already built on top of angular's [http](https://docs.angularjs.org/api/ng/service/$http) core service which already supports such configurations like setting its `$http.defaults.headers` property in a run block or using interceptors. More about it [here](http://stackoverflow.com/questions/27134840/setting-angularjs-http-headers-globally). 
 
 
 
 
 ## Data Filtering
-At the time of writing there is no official support to data searching or filtering by the Yii2 RESTful API framework as it is yet under discussion [here](https://github.com/yiisoft/yii2/issues/4479). But implementing data filtering in the Yii2 isn't hard. There is many ways to achieve it. One of those is by involving a *Search Class* like the one generated by the [gii](http://www.yiiframework.com/doc-2.0/guide-start-gii.html) module to filter your data:
+At the time of writing there is no official support to data searching or filtering by Yii2 RESTful API framework as it is yet under discussion [here](https://github.com/yiisoft/yii2/issues/4479). But implementing data filtering in Yii2 isn't hard. There is many ways to achieve it. One of those is by involving a *Search Class* like the one generated by the [gii](http://www.yiiframework.com/doc-2.0/guide-start-gii.html) module to filter your data:
 
 ```php
 class UserSearch extends \app\models\User
@@ -335,9 +337,9 @@ class UserController extends \yii\rest\ActiveController
     }
 }
 ```
-*(based on [klimov-paul 's comment](https://github.com/yiisoft/yii2/pull/12641#issuecomment-253789966). an alternative but same approach may also be found [here](http://stackoverflow.com/questions/25522462/yii2-rest-query/30560912#30560912))*
+*(based on [klimov-paul 's comment](https://github.com/yiisoft/yii2/pull/12641#issuecomment-253789966). An alternative but same approach may also be found [here](http://stackoverflow.com/questions/25522462/yii2-rest-query/30560912#30560912))*
 
-Once implemented in the server-side. The `$where()` method provided by this extension will help filtering your resources by updating its data array as soon as the new filtered list is received from the server. Here is a quick example on how to use it with a search input:
+Once implemented in server-side. The `$where()` method provided by this extension will help filtering your resources by updating its data array as soon as the new filtered list is received from server. Here is a quick example on how to use it with a search input:
 
 ```javascript
 <input 
@@ -349,4 +351,4 @@ Once implemented in the server-side. The `$where()` method provided by this exte
 >
 <pre>{{ $.allUsers.$data | json}}</pre>
 ```
-*(note: the debounce trick here is to prevent sending a new request with each typing and wait for user to stop writing instead)*
+*(note: the debounce trick here is to wait for user stop writing instead of sending new requests on each typing)*
