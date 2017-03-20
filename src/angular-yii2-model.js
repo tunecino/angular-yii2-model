@@ -32,7 +32,7 @@
     **/
     
     function BaseModel(route) {
-        if (typeof route === "undefined") throw new Error("route name is missing");
+        if (typeof route !== 'string') throw new Error("route name is missing");
 
         var _route = route,
             _expand,
@@ -44,11 +44,11 @@
         });
         Object.defineProperty(this, '$expand', {
             get: function() { return _expand },
-            set: function(value) { _expand = _isArray(value) ? value.join() : value }
+            set: function(value) { _expand = angular.isArray(value) ? value.join() : value }
         });
         Object.defineProperty(this, '$fields', {
             get: function() { return _fields },
-            set: function(value) { _fields = _isArray(value) ? value.join() : value }
+            set: function(value) { _fields = angular.isArray(value) ? value.join() : value }
         });
         Object.defineProperty(this, '$baseUrl', {
             get: function() { return config.baseUrl + '/' + this.$route },
@@ -245,7 +245,7 @@
           },
           function errorCallback(error) {
               if (error.status === 422) {
-                _each(error.data, function(e) {
+                angular.forEach(error.data, function(e) {
                   var errObj = { 
                     message: e.message,
                     pattern: '(?!^'+ _preg_quote($this[e.field]) +'$)(^.*$)'
@@ -273,7 +273,7 @@
           },
           function errorCallback(error) {
               if (error.status === 422) {
-                _each(error.data, function(e) {
+                angular.forEach(error.data, function(e) {
                   var errObj = { 
                     message: e.message,
                     pattern: '(?!^'+ _preg_quote($this[e.field]) +'$)(^.*$)'
@@ -284,7 +284,7 @@
           });
       },
 
-      $save: function() { this.$isNew() ? this.$create() : this.$update() },
+      $save: function() { return this.$isNew() ? this.$create() : this.$update() },
       $delete: function() {
           if (this.$isNew()) throw new Error("item is not yet saved");
           var $this = this;
@@ -305,9 +305,6 @@
      * private helper methods
     **/
 
-    var _each = angular.forEach;
-
-    var _isArray = angular.isArray;
 
     var _isPlainObject = function (obj) {
         //source: http://stackoverflow.com/questions/5876332/how-can-i-differentiate-between-an-object-literal-other-javascript-objects#answer-5878101
