@@ -1,6 +1,6 @@
 {
   "name": "angular-yii2-model",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Yii2 RESTful API mapper for AngularJS 1.x",
   "main": "src/angular-yii2-model.js",
   "repository": {
