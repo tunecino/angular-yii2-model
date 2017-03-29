@@ -135,7 +135,7 @@ Alternatively; if not using ui-router; both `$load()` and `$find()` methods shou
 angular.module('your-app').controller('FormCtrl', function($scope, YiiModel) {
   var $ = this;
 
-   var users = YiiModel.one('users');
+   var users = YiiModel.all('users');
    users.$select(['id','username']);
    users.$load(10).then(function(data){
       $.allUsers = data;
