@@ -402,7 +402,6 @@
     }
 
 
-
     this.$get = provider;
     provider.$inject = ['$http'];
     function provider(_$http_) {
